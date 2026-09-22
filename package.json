@@ -1,0 +1,33 @@
+{
+  "name": "jobpilot-backend",
+  "version": "1.0.0",
+  "description": "AI Job Application Assistant created by Parvez Rahman",
+  "license": "ISC",
+  "author": "Parvez Rahman",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "start": "tsx watch src/server.ts",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "prisma skills sync || exit 0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/node": "^26.6.2",
+    "@types/pg": "^8.23.1",
+    "@typescript-eslint/parser": "^8.70.1",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.10.0",
+    "@prisma/client": "7",
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.6.2",
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.2",
+    "express": "^5.2.1",
+    "pg": "^8.23.0",
+    "prisma": "^7.10.0"
+  }
+}
