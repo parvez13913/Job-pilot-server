@@ -26,6 +26,29 @@ const signUp = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const signIn = catchAsync(async (req: Request, res: Response) => {
+  const { ...signInData } = req.body;
+
+  const result = await AuthService.signIn(signInData);
+
+  const cookieOptions = {
+    secure: config.env === "production",
+    httpOnly: true,
+  };
+
+  const { refreshToken, accessToken } = result;
+
+  res.cookie("refreshToken", refreshToken, cookieOptions);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "User login successfully!",
+    token: accessToken,
+  });
+});
+
 export const AuthController = {
   signUp,
+  signIn,
 };

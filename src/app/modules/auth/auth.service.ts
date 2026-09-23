@@ -5,7 +5,11 @@ import config from "../../../config";
 import ApiError from "../../../errors/ApiError";
 import { JwtHelpers } from "../../../helpers/jwt-helpers";
 import prisma from "../../../lib/prisma";
-import { IAuthResponse, ISignUpPayload } from "./auth.interface";
+import {
+  IAuthResponse,
+  ISignInPayload,
+  ISignUpPayload,
+} from "./auth.interface";
 
 const signUp = async (data: ISignUpPayload): Promise<IAuthResponse> => {
   const isUserExist = await prisma.user.findUnique({
@@ -54,6 +58,42 @@ const signUp = async (data: ISignUpPayload): Promise<IAuthResponse> => {
   return { accessToken, refreshToken };
 };
 
+const signIn = async (payload: ISignInPayload) => {
+  const { email, password } = payload;
+
+  const isUserExist = await prisma.user.findFirst({ where: { email } });
+
+  if (!isUserExist) {
+    throw new ApiError(StatusCodes.NOT_FOUND, "User not found");
+  }
+
+  const isPasswordValid = await bcrypt.compare(password, isUserExist?.password);
+
+  if (!isPasswordValid) {
+    throw new ApiError(StatusCodes.UNAUTHORIZED, "Invalid password");
+  }
+
+  const { email: userEmail, id } = isUserExist;
+
+  const accessToken = JwtHelpers.createToken(
+    { userEmail, id },
+    config.jwt.secret as Secret,
+    config.jwt.expires_in as unknown as string,
+  );
+
+  const refreshToken = JwtHelpers.createToken(
+    { userEmail, id },
+    config.jwt.refresh_secret as Secret,
+    config.jwt.refresh_expires_in as unknown as string,
+  );
+
+  return {
+    accessToken,
+    refreshToken,
+  };
+};
+
 export const AuthService = {
   signUp,
+  signIn,
 };
