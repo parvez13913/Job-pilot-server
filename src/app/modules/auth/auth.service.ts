@@ -58,7 +58,7 @@ const signUp = async (data: ISignUpPayload): Promise<IAuthResponse> => {
   return { accessToken, refreshToken };
 };
 
-const signIn = async (payload: ISignInPayload) => {
+const signIn = async (payload: ISignInPayload): Promise<IAuthResponse> => {
   const { email, password } = payload;
 
   const isUserExist = await prisma.user.findFirst({ where: { email } });
@@ -93,7 +93,12 @@ const signIn = async (payload: ISignInPayload) => {
   };
 };
 
+const signOut = async (): Promise<void> => {
+  return;
+};
+
 export const AuthService = {
   signUp,
   signIn,
+  signOut,
 };

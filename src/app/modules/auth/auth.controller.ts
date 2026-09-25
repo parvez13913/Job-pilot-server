@@ -48,7 +48,18 @@ const signIn = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const signOut = catchAsync(async (req: Request, res: Response) => {
+  res.clearCookie("refreshToken");
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "User logged out successfully!",
+  });
+});
+
 export const AuthController = {
   signUp,
   signIn,
+  signOut,
 };
