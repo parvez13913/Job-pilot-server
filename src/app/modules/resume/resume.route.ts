@@ -23,4 +23,5 @@ router.patch(
 );
 
 router.delete("/:id", ResumeController.deleteResume);
+
 export const ResumeRouter = router;
