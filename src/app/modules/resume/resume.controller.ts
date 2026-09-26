@@ -46,8 +46,24 @@ const getResumeById = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const updateResume = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  const { id } = req.params as { id: string };
+  const payload = req.body;
+
+  const result = await ResumeService.updateResume(userId, id, payload);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Resume updated successfully!",
+    data: result,
+  });
+});
+
 export const ResumeController = {
   createResume,
   getUserResumes,
   getResumeById,
+  updateResume,
 };

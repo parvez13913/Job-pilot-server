@@ -1,5 +1,11 @@
+import { StatusCodes } from "http-status-codes";
+import ApiError from "../../../errors/ApiError";
 import prisma from "../../../lib/prisma";
-import { ICreateResumePayload, IResumeResponse } from "./resume.interface";
+import {
+  ICreateResumePayload,
+  IResumeResponse,
+  IUpdateResumePayload,
+} from "./resume.interface";
 
 import { extractPdfText } from "./resume.utils";
 
@@ -45,8 +51,40 @@ const getResumeById = async (
     where: { id: resumeId, userId },
   });
   if (!result) {
-    throw new Error("Resume not found");
+    throw new ApiError(StatusCodes.NOT_FOUND, "Resume not found");
   }
+
+  return result;
+};
+
+const updateResume = async (
+  userId: string,
+  resumeId: string,
+  payload: IUpdateResumePayload,
+): Promise<IResumeResponse> => {
+  const existingResume = await prisma.resume.findFirst({
+    where: {
+      id: resumeId,
+      userId,
+    },
+  });
+
+  if (!existingResume) {
+    throw new ApiError(StatusCodes.NOT_FOUND, "Resume not found");
+  }
+
+  const result = await prisma.resume.update({
+    where: {
+      id: resumeId,
+      userId,
+    },
+
+    data: {
+      ...(payload.name !== undefined && {
+        name: payload.name,
+      }),
+    },
+  });
 
   return result;
 };
@@ -55,4 +93,5 @@ export const ResumeService = {
   createResume,
   getUserResumes,
   getResumeById,
+  updateResume,
 };

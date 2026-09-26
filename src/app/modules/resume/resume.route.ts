@@ -16,4 +16,9 @@ router.post(
 
 router.get("/", ResumeController.getUserResumes);
 router.get("/:id", ResumeController.getResumeById);
+router.patch(
+  "/:id",
+  //   validateRequest(updateResumeSchema),
+  ResumeController.updateResume,
+);
 export const ResumeRouter = router;
