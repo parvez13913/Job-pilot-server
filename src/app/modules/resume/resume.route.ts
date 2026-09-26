@@ -15,5 +15,5 @@ router.post(
 );
 
 router.get("/", ResumeController.getUserResumes);
-
+router.get("/:id", ResumeController.getResumeById);
 export const ResumeRouter = router;

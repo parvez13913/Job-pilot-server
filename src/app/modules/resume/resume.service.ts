@@ -30,14 +30,29 @@ const createResume = async (
 };
 
 const getUserResumes = async (userId: string): Promise<IResumeResponse[]> => {
-  const resumes = await prisma.resume.findMany({
+  const result = await prisma.resume.findMany({
     where: { userId },
     orderBy: { createdAt: "desc" },
   });
-  return resumes;
+  return result;
+};
+
+const getResumeById = async (
+  userId: string,
+  resumeId: string,
+): Promise<IResumeResponse | null> => {
+  const result = await prisma.resume.findFirst({
+    where: { id: resumeId, userId },
+  });
+  if (!result) {
+    throw new Error("Resume not found");
+  }
+
+  return result;
 };
 
 export const ResumeService = {
   createResume,
   getUserResumes,
+  getResumeById,
 };
