@@ -21,4 +21,6 @@ router.patch(
   //   validateRequest(updateResumeSchema),
   ResumeController.updateResume,
 );
+
+router.delete("/:id", ResumeController.deleteResume);
 export const ResumeRouter = router;

@@ -61,9 +61,23 @@ const updateResume = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const deleteResume = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  const { id } = req.params as { id: string };
+
+  await ResumeService.deleteResume(userId, id);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Resume deleted successfully!",
+  });
+});
+
 export const ResumeController = {
   createResume,
   getUserResumes,
   getResumeById,
   updateResume,
+  deleteResume,
 };
