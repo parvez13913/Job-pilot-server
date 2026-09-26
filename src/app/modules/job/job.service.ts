@@ -1,3 +1,5 @@
+import { StatusCodes } from "http-status-codes";
+import ApiError from "../../../errors/ApiError";
 import prisma from "../../../lib/prisma";
 import { ICreateJobPayload, IJobResponse } from "./job.interface";
 
@@ -28,7 +30,23 @@ const getAllJobs = async (userId: string) => {
   return result;
 };
 
+const getJobById = async (userId: string, jobId: string) => {
+  const result = await prisma.job.findFirst({
+    where: {
+      id: jobId,
+      userId,
+    },
+  });
+
+  if (!result) {
+    throw new ApiError(StatusCodes.NOT_FOUND, "Job not found");
+  }
+
+  return result;
+};
+
 export const JobService = {
   createJob,
   getAllJobs,
+  getJobById,
 };

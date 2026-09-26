@@ -29,7 +29,21 @@ const getAllJobs = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getJobById = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  const jobId = req.params.id as string;
+  const result = await JobService.getJobById(userId, jobId);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Job retrieved successfully!",
+    data: result,
+  });
+});
+
 export const JobController = {
   createJob,
   getAllJobs,
+  getJobById,
 };
