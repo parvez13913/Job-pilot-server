@@ -20,4 +20,6 @@ router.patch(
   JobController.updateJob,
 );
 
+router.delete("/:id", JobController.deleteJob);
+
 export const JobRouter = router;

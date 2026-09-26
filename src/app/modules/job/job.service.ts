@@ -74,9 +74,31 @@ const updateJob = async (
   return result;
 };
 
+const deleteJob = async (userId: string, jobId: string) => {
+  const existingJob = await prisma.job.findFirst({
+    where: {
+      id: jobId,
+      userId,
+    },
+  });
+
+  if (!existingJob) {
+    throw new ApiError(StatusCodes.NOT_FOUND, "Job not found");
+  }
+
+  const result = await prisma.job.delete({
+    where: {
+      id: jobId,
+    },
+  });
+
+  return result;
+};
+
 export const JobService = {
   createJob,
   getAllJobs,
   getJobById,
   updateJob,
+  deleteJob,
 };
