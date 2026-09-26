@@ -18,7 +18,7 @@ const createJob = async (
   return result;
 };
 
-const getAllJobs = async (userId: string) => {
+const getAllJobs = async (userId: string): Promise<IJobResponse[]> => {
   const result = await prisma.job.findMany({
     where: {
       userId,
@@ -30,7 +30,10 @@ const getAllJobs = async (userId: string) => {
   return result;
 };
 
-const getJobById = async (userId: string, jobId: string) => {
+const getJobById = async (
+  userId: string,
+  jobId: string,
+): Promise<IJobResponse> => {
   const result = await prisma.job.findFirst({
     where: {
       id: jobId,
@@ -45,8 +48,35 @@ const getJobById = async (userId: string, jobId: string) => {
   return result;
 };
 
+const updateJob = async (
+  userId: string,
+  jobId: string,
+  payload: Partial<ICreateJobPayload>,
+) => {
+  const existingJob = await prisma.job.findFirst({
+    where: {
+      id: jobId,
+      userId,
+    },
+  });
+
+  if (!existingJob) {
+    throw new ApiError(StatusCodes.NOT_FOUND, "Job not found");
+  }
+
+  const result = await prisma.job.update({
+    where: {
+      id: jobId,
+    },
+    data: payload,
+  });
+
+  return result;
+};
+
 export const JobService = {
   createJob,
   getAllJobs,
   getJobById,
+  updateJob,
 };

@@ -14,5 +14,10 @@ router.post(
 
 router.get("/", JobController.getAllJobs);
 router.get("/:id", JobController.getJobById);
+router.patch(
+  "/:id",
+  //   validateRequest(updateJobSchema),
+  JobController.updateJob,
+);
 
 export const JobRouter = router;
