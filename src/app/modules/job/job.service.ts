@@ -16,6 +16,19 @@ const createJob = async (
   return result;
 };
 
+const getAllJobs = async (userId: string) => {
+  const result = await prisma.job.findMany({
+    where: {
+      userId,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+  return result;
+};
+
 export const JobService = {
   createJob,
+  getAllJobs,
 };
