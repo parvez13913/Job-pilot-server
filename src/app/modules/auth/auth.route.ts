@@ -19,4 +19,6 @@ router.post(
 
 router.post("/sign-out", AuthController.signOut);
 
+router.post("/forgot-password", AuthController.forgotPassword);
+
 export const AuthRouter = router;

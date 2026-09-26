@@ -10,6 +10,7 @@ import {
   ISignInPayload,
   ISignUpPayload,
 } from "./auth.interface";
+import { sendEMail } from "./send-reset-mail";
 
 const signUp = async (data: ISignUpPayload): Promise<IAuthResponse> => {
   const isUserExist = await prisma.user.findUnique({
@@ -97,8 +98,46 @@ const signOut = async (): Promise<void> => {
   return;
 };
 
+const forgotPassword = async (payload: { email: string }): Promise<void> => {
+  const { email } = payload;
+  const isUserExist = await prisma.user.findUnique({
+    where: {
+      email,
+    },
+  });
+
+  if (!isUserExist) {
+    throw new ApiError(StatusCodes.NOT_FOUND, "User does not exist");
+  }
+
+  const passwordResetToken = JwtHelpers.createPasswordResetToken(
+    { email: isUserExist?.email },
+    config.jwt.secret as string,
+    "5m",
+  );
+
+  const resetLink: string =
+    config.reset_password_link + `reset-password?${passwordResetToken}`;
+
+  const username = isUserExist?.email.split("@")[0];
+
+  await sendEMail(
+    isUserExist?.email,
+    `
+      <div>
+         <p>Hi, ${username}</p>
+         <p>your password reset link: <a href=${resetLink}>Click Here</a></p>
+         <p>Thank you</p>
+      </div>
+
+    `,
+    "Reset you password",
+  );
+};
+
 export const AuthService = {
   signUp,
   signIn,
   signOut,
+  forgotPassword,
 };
