@@ -29,6 +29,15 @@ const createResume = async (
   return resume;
 };
 
+const getUserResumes = async (userId: string): Promise<IResumeResponse[]> => {
+  const resumes = await prisma.resume.findMany({
+    where: { userId },
+    orderBy: { createdAt: "desc" },
+  });
+  return resumes;
+};
+
 export const ResumeService = {
   createResume,
+  getUserResumes,
 };

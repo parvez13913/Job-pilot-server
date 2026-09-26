@@ -14,4 +14,6 @@ router.post(
   ResumeController.createResume,
 );
 
+router.get("/", ResumeController.getUserResumes);
+
 export const ResumeRouter = router;
