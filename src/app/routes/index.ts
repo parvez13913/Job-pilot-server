@@ -1,4 +1,5 @@
 import express from "express";
+import { AiRouter } from "../modules/ai/ai.route";
 import { AuthRouter } from "../modules/auth/auth.route";
 import { JobRouter } from "../modules/job/job.route";
 import { ResumeRouter } from "../modules/resume/resume.route";
@@ -17,6 +18,10 @@ const moduleRoutes = [
   {
     path: "/job",
     route: JobRouter,
+  },
+  {
+    path: "/ai",
+    route: AiRouter,
   },
 ];
 
