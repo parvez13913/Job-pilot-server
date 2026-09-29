@@ -2,17 +2,18 @@ import { StatusCodes } from "http-status-codes";
 import ApiError from "../../../errors/ApiError";
 import prisma from "../../../lib/prisma";
 
-import { ICreateAnalysisPayload } from "./analysis.interface";
+import {
+  IAnalysisResponse,
+  ICreateAnalysisPayload,
+} from "./analysis.interface";
 
 import { analyzeResumeAgainstJob } from "./analysis.utils";
 
 const createAnalysis = async (
   userId: string,
   payload: ICreateAnalysisPayload,
-) => {
+): Promise<IAnalysisResponse> => {
   const { resumeId, jobId } = payload;
-
-  
 
   const resume = await prisma.resume.findFirst({
     where: {
@@ -24,8 +25,6 @@ const createAnalysis = async (
   if (!resume) {
     throw new ApiError(StatusCodes.NOT_FOUND, "Resume not found");
   }
-
-  
 
   const job = await prisma.job.findFirst({
     where: {
@@ -51,7 +50,6 @@ const createAnalysis = async (
       "Job description has not been parsed yet",
     );
   }
-
 
   const analysis = analyzeResumeAgainstJob(
     resume.parsedData as any,
@@ -81,6 +79,39 @@ const createAnalysis = async (
   return result;
 };
 
+const getAnalysisById = async (
+  userId: string,
+  analysisId: string,
+): Promise<IAnalysisResponse> => {
+  const result = await prisma.jobAnalysis.findFirst({
+    where: {
+      id: analysisId,
+      userId,
+    },
+  });
+
+  if (!result) {
+    throw new ApiError(StatusCodes.NOT_FOUND, "Analysis not found");
+  }
+
+  return result;
+};
+
+const getUserAnalyses = async (
+  userId: string,
+): Promise<IAnalysisResponse[]> => {
+  return prisma.jobAnalysis.findMany({
+    where: {
+      userId,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+};
+
 export const AnalysisService = {
   createAnalysis,
+  getAnalysisById,
+  getUserAnalyses,
 };
