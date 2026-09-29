@@ -3,6 +3,7 @@ import { AiRouter } from "../modules/ai/ai.route";
 import { AuthRouter } from "../modules/auth/auth.route";
 import { JobRouter } from "../modules/job/job.route";
 import { ResumeRouter } from "../modules/resume/resume.route";
+import { AnalysisRouter } from "../modules/analysis/analysis.route";
 
 const router = express.Router();
 
@@ -22,6 +23,10 @@ const moduleRoutes = [
   {
     path: "/ai",
     route: AiRouter,
+  },
+  {
+    path: "/analysis",
+    route: AnalysisRouter,
   },
 ];
 

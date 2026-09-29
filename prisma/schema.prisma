@@ -22,6 +22,8 @@ model User {
   applications Application[]
   coverLetters CoverLetter[]
   interviews   InterviewSession[]
+
+  jobAnalyses JobAnalysis[]
 }
 
 model Session {
@@ -48,6 +50,8 @@ model Resume {
 
   user     User            @relation(fields: [userId], references: [id])
   versions ResumeVersion[]
+
+  jobAnalyses JobAnalysis[]
 }
 
 model ResumeVersion {
@@ -77,17 +81,28 @@ model Job {
 }
 
 model JobAnalysis {
-  id              String   @id @default(cuid())
-  jobId           String
-  resumeId        String
+  id       String @id @default(cuid())
+  userId   String
+  jobId    String
+  resumeId String
+
   matchScore      Int
   matchedSkills   Json
   missingSkills   Json
+  experienceGaps  Json
   keywords        Json
   recommendations Json
-  createdAt       DateTime @default(now())
 
-  job Job @relation(fields: [jobId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job    Job    @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  resume Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([jobId])
+  @@index([resumeId])
 }
 
 model Application {
