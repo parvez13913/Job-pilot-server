@@ -4,10 +4,16 @@ export interface ICreateTailoredResumePayload {
   analysisId: string;
 }
 
-export interface ITailoredResumeResponse {
+export interface ITailoredResumeVersion {
   id: string;
   resumeId: string;
   jobId: string | null;
   content: unknown;
   createdAt: Date;
+}
+
+export interface ITailoredResumeResponse {
+  version: ITailoredResumeVersion;
+  content: unknown;
+  source: "local";
 }

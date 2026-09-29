@@ -3,13 +3,16 @@ import { StatusCodes } from "http-status-codes";
 import ApiError from "../../../errors/ApiError";
 import prisma from "../../../lib/prisma";
 
-import { ICreateTailoredResumePayload } from "./tailored-resume.interface";
+import {
+  ICreateTailoredResumePayload,
+  ITailoredResumeResponse,
+} from "./tailored-resume.interface";
 import { createTailoredResumeHelper } from "./tailored-resume.utils";
 
 const createTailoredResume = async (
   userId: string,
   payload: ICreateTailoredResumePayload,
-) => {
+): Promise<ITailoredResumeResponse> => {
   const { resumeId, jobId, analysisId } = payload;
 
   const resume = await prisma.resume.findFirst({
