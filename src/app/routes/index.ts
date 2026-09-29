@@ -4,6 +4,7 @@ import { AuthRouter } from "../modules/auth/auth.route";
 import { JobRouter } from "../modules/job/job.route";
 import { ResumeRouter } from "../modules/resume/resume.route";
 import { AnalysisRouter } from "../modules/analysis/analysis.route";
+import { TailoredResumeRouter } from "../modules/tailored-resume/tailored-resume.route";
 
 const router = express.Router();
 
@@ -27,6 +28,10 @@ const moduleRoutes = [
   {
     path: "/analysis",
     route: AnalysisRouter,
+  },
+  {
+    path: "/tailored-resume",
+    route: TailoredResumeRouter,
   },
 ];
 
