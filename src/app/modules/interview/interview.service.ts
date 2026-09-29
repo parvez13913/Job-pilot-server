@@ -199,7 +199,7 @@ const getInterviewById = async (
 const updateInterview = async (
   userId: string,
   interviewId: string,
-  payload: IUpdateInterviewPayload,
+  payload: Partial<IUpdateInterviewPayload>,
 ): Promise<IInterviewSessionResponse> => {
   const existingInterview = await prisma.interviewSession.findFirst({
     where: {
