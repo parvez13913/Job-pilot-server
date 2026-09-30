@@ -7,22 +7,34 @@ import { AuthService } from "./auth.service";
 
 const signUp = catchAsync(async (req: Request, res: Response) => {
   const { ...data } = req.body;
+
   const result = await AuthService.signUp(data);
-
-  const cookieOptions = {
-    secure: config.env === "development",
-    httpOnly: true,
-  };
-
-  const { refreshToken, accessToken } = result;
-
-  res.cookie("refreshToken", refreshToken, cookieOptions);
 
   sendResponse(res, {
     statusCode: StatusCodes.OK,
     success: true,
-    message: "User Created Successfully!",
-    token: accessToken,
+    message: result.message,
+    data: null,
+  });
+});
+
+const verifySignUp = catchAsync(async (req: Request, res: Response) => {
+  const payload = req.body;
+
+  const result = await AuthService.verifySignUp(payload.email, payload.code);
+
+  const cookieOptions = {
+    secure: config.env === "production",
+    httpOnly: true,
+  };
+
+  res.cookie("refreshToken", result.refreshToken, cookieOptions);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Email verified and account created successfully!",
+    token: result.accessToken,
   });
 });
 
@@ -70,6 +82,7 @@ const forgotPassword = catchAsync(async (req: Request, res: Response) => {
 
 export const AuthController = {
   signUp,
+  verifySignUp,
   signIn,
   signOut,
   forgotPassword,

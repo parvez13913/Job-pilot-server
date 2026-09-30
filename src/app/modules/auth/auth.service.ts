@@ -10,16 +10,19 @@ import {
   ISignInPayload,
   ISignUpPayload,
 } from "./auth.interface";
-import { sendEMail } from "./send-reset-mail";
+import { generateSignupCode, hashSignupCode } from "./auth.utils";
+import { EmailService } from "./send-reset-mail";
 
-const signUp = async (data: ISignUpPayload): Promise<IAuthResponse> => {
-  const isUserExist = await prisma.user.findUnique({
+const signUp = async (data: ISignUpPayload): Promise<{ message: string }> => {
+  const email = data.email.toLowerCase().trim();
+
+  const existingUser = await prisma.user.findUnique({
     where: {
-      email: data?.email,
+      email,
     },
   });
 
-  if (isUserExist) {
+  if (existingUser) {
     throw new ApiError(
       StatusCodes.CONFLICT,
       "There is already a user by this email.",
@@ -27,20 +30,150 @@ const signUp = async (data: ISignUpPayload): Promise<IAuthResponse> => {
   }
 
   const hashedPassword = await bcrypt.hash(
-    data?.password,
+    data.password,
     Number(config.bcrypt_salt_round),
   );
 
-  const user = await prisma.user.create({
-    data: {
-      ...data,
-      password: hashedPassword,
+  const code = generateSignupCode();
+
+  const codeHash = hashSignupCode(code);
+
+  const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+  await prisma.pendingSignup.deleteMany({
+    where: {
+      email,
     },
   });
 
-  if (!user) {
-    throw new ApiError(StatusCodes.BAD_REQUEST, "Failed to register.");
+  await prisma.pendingSignup.create({
+    data: {
+      name: data.name,
+      email,
+      passwordHash: hashedPassword,
+      codeHash,
+      expiresAt,
+    },
+  });
+
+  try {
+    await EmailService.sendSignupVerificationCode(
+      email,
+      data.name ?? null,
+      code,
+    );
+  } catch (error) {
+    await prisma.pendingSignup.deleteMany({
+      where: {
+        email,
+      },
+    });
+
+    throw new ApiError(
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      "Failed to send verification code.",
+    );
   }
+
+  return {
+    message: "Verification code sent to your email.",
+  };
+};
+
+const verifySignUp = async (
+  email: string,
+  code: string,
+): Promise<IAuthResponse> => {
+  const normalizedEmail = email.toLowerCase().trim();
+
+  const pendingSignup = await prisma.pendingSignup.findUnique({
+    where: {
+      email: normalizedEmail,
+    },
+  });
+
+  if (!pendingSignup) {
+    throw new ApiError(
+      StatusCodes.NOT_FOUND,
+      "Signup request not found or already verified.",
+    );
+  }
+
+  if (pendingSignup.expiresAt < new Date()) {
+    await prisma.pendingSignup.delete({
+      where: {
+        id: pendingSignup.id,
+      },
+    });
+
+    throw new ApiError(
+      StatusCodes.BAD_REQUEST,
+      "Verification code has expired. Please sign up again.",
+    );
+  }
+
+  if (pendingSignup.attempts >= 5) {
+    await prisma.pendingSignup.delete({
+      where: {
+        id: pendingSignup.id,
+      },
+    });
+
+    throw new ApiError(
+      StatusCodes.TOO_MANY_REQUESTS,
+      "Too many incorrect attempts. Please sign up again.",
+    );
+  }
+
+  const hashedCode = hashSignupCode(code);
+
+  if (hashedCode !== pendingSignup.codeHash) {
+    await prisma.pendingSignup.update({
+      where: {
+        id: pendingSignup.id,
+      },
+      data: {
+        attempts: {
+          increment: 1,
+        },
+      },
+    });
+
+    throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid verification code.");
+  }
+
+  const existingUser = await prisma.user.findUnique({
+    where: {
+      email: normalizedEmail,
+    },
+  });
+
+  if (existingUser) {
+    await prisma.pendingSignup.delete({
+      where: {
+        id: pendingSignup.id,
+      },
+    });
+
+    throw new ApiError(
+      StatusCodes.CONFLICT,
+      "There is already a user by this email.",
+    );
+  }
+
+  const user = await prisma.user.create({
+    data: {
+      name: pendingSignup.name,
+      email: pendingSignup.email,
+      password: pendingSignup.passwordHash,
+    },
+  });
+
+  await prisma.pendingSignup.delete({
+    where: {
+      id: pendingSignup.id,
+    },
+  });
 
   const { email: userEmail, id } = user;
 
@@ -56,7 +189,10 @@ const signUp = async (data: ISignUpPayload): Promise<IAuthResponse> => {
     config.jwt.refresh_expires_in as unknown as string,
   );
 
-  return { accessToken, refreshToken };
+  return {
+    accessToken,
+    refreshToken,
+  };
 };
 
 const signIn = async (payload: ISignInPayload): Promise<IAuthResponse> => {
@@ -120,23 +256,11 @@ const forgotPassword = async (payload: { email: string }): Promise<void> => {
     config.reset_password_link + `reset-password?${passwordResetToken}`;
 
   const username = isUserExist?.email.split("@")[0];
-
-  await sendEMail(
-    isUserExist?.email,
-    `
-      <div>
-         <p>Hi, ${username}</p>
-         <p>your password reset link: <a href=${resetLink}>Click Here</a></p>
-         <p>Thank you</p>
-      </div>
-
-    `,
-    "Reset you password",
-  );
 };
 
 export const AuthService = {
   signUp,
+  verifySignUp,
   signIn,
   signOut,
   forgotPassword,

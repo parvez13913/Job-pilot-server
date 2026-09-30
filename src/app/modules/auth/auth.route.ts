@@ -11,6 +11,8 @@ router.post(
   AuthController.signUp,
 );
 
+router.post("/verify-signup", AuthController.verifySignUp);
+
 router.post(
   "/sign-in",
   validateRequest(AuthValidation.signInZodSchema),

@@ -13,6 +13,10 @@ model User {
   email    String  @unique
   password String
 
+  isEmailVerified          Boolean   @default(false)
+  emailVerificationToken   String?
+  emailVerificationExpires DateTime?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -22,8 +26,23 @@ model User {
   applications Application[]
   coverLetters CoverLetter[]
   interviews   InterviewSession[]
+  analyses     JobAnalysis[]
 
-  jobAnalyses JobAnalysis[]
+  @@index([emailVerificationToken])
+}
+
+model PendingSignup {
+  id           String   @id @default(cuid())
+  name         String?
+  email        String   @unique
+  passwordHash String
+  codeHash     String
+  expiresAt    DateTime
+  attempts     Int      @default(0)
+  createdAt    DateTime @default(now())
+
+  @@index([email])
+  @@index([expiresAt])
 }
 
 model Session {
