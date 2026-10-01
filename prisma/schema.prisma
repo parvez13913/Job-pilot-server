@@ -29,6 +29,7 @@ model User {
   analyses     JobAnalysis[]
 
   @@index([emailVerificationToken])
+  passwordResets PasswordReset[]
 }
 
 model PendingSignup {
@@ -55,6 +56,24 @@ model Session {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+model PasswordReset {
+  id         String    @id @default(cuid())
+  userId     String
+  email      String
+  codeHash   String
+  expiresAt  DateTime
+  attempts   Int       @default(0)
+  verifiedAt DateTime?
+  usedAt     DateTime?
+  createdAt  DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([email])
+  @@index([userId])
+  @@index([expiresAt])
 }
 
 model Resume {

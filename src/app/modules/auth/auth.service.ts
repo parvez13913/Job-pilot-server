@@ -10,7 +10,12 @@ import {
   ISignInPayload,
   ISignUpPayload,
 } from "./auth.interface";
-import { generateSignupCode, hashSignupCode } from "./auth.utils";
+import {
+  generateOtpCode,
+  generateSignupCode,
+  hashOtpCode,
+  hashSignupCode,
+} from "./auth.utils";
 import { EmailService } from "./send-reset-mail";
 
 const signUp = async (data: ISignUpPayload): Promise<{ message: string }> => {
@@ -234,28 +239,229 @@ const signOut = async (): Promise<void> => {
   return;
 };
 
-const forgotPassword = async (payload: { email: string }): Promise<void> => {
-  const { email } = payload;
-  const isUserExist = await prisma.user.findUnique({
+const forgotPassword = async (payload: {
+  email: string;
+}): Promise<{ message: string }> => {
+  const email = payload.email.toLowerCase().trim();
+
+  const user = await prisma.user.findUnique({
     where: {
       email,
     },
   });
 
-  if (!isUserExist) {
+  if (!user) {
     throw new ApiError(StatusCodes.NOT_FOUND, "User does not exist");
   }
 
-  const passwordResetToken = JwtHelpers.createPasswordResetToken(
-    { email: isUserExist?.email },
+  await prisma.passwordReset.deleteMany({
+    where: {
+      email,
+    },
+  });
+
+  const code = generateOtpCode();
+
+  const codeHash = hashOtpCode(code);
+
+  const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+  await prisma.passwordReset.create({
+    data: {
+      userId: user.id,
+      email: user.email,
+      codeHash,
+      expiresAt,
+    },
+  });
+
+  try {
+    await EmailService.sendPasswordResetCode(user.email, code);
+  } catch (error) {
+    await prisma.passwordReset.deleteMany({
+      where: {
+        email,
+      },
+    });
+
+    throw new ApiError(
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      "Failed to send password reset code.",
+    );
+  }
+
+  return {
+    message: "Password reset code has been sent to your email.",
+  };
+};
+
+const verifyPasswordResetCode = async (payload: {
+  email: string;
+  code: string;
+}): Promise<{ resetToken: string }> => {
+  const email = payload.email.toLowerCase().trim();
+
+  const resetRequest = await prisma.passwordReset.findFirst({
+    where: {
+      email,
+      usedAt: null,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  if (!resetRequest) {
+    throw new ApiError(
+      StatusCodes.NOT_FOUND,
+      "Password reset request not found.",
+    );
+  }
+
+  if (resetRequest.expiresAt < new Date()) {
+    await prisma.passwordReset.delete({
+      where: {
+        id: resetRequest.id,
+      },
+    });
+
+    throw new ApiError(
+      StatusCodes.BAD_REQUEST,
+      "Verification code has expired.",
+    );
+  }
+
+  if (resetRequest.attempts >= 5) {
+    throw new ApiError(
+      StatusCodes.TOO_MANY_REQUESTS,
+      "Too many incorrect attempts. Please request a new code.",
+    );
+  }
+
+  const codeHash = hashOtpCode(payload.code);
+
+  if (codeHash !== resetRequest.codeHash) {
+    await prisma.passwordReset.update({
+      where: {
+        id: resetRequest.id,
+      },
+      data: {
+        attempts: {
+          increment: 1,
+        },
+      },
+    });
+
+    throw new ApiError(StatusCodes.BAD_REQUEST, "Invalid verification code.");
+  }
+
+  await prisma.passwordReset.update({
+    where: {
+      id: resetRequest.id,
+    },
+    data: {
+      verifiedAt: new Date(),
+    },
+  });
+
+  const resetToken = JwtHelpers.createPasswordResetToken(
+    {
+      userId: resetRequest.userId,
+      resetId: resetRequest.id,
+      purpose: "PASSWORD_RESET",
+    },
     config.jwt.secret as string,
-    "5m",
+    "10m",
   );
 
-  const resetLink: string =
-    config.reset_password_link + `reset-password?${passwordResetToken}`;
+  return {
+    resetToken,
+  };
+};
 
-  const username = isUserExist?.email.split("@")[0];
+const resetPassword = async (payload: {
+  resetToken: string;
+  newPassword: string;
+}): Promise<void> => {
+  const decoded = JwtHelpers.verifiedToken(
+    payload.resetToken,
+    config.jwt.secret as Secret,
+  );
+
+  if (decoded?.purpose !== "PASSWORD_RESET") {
+    throw new ApiError(
+      StatusCodes.UNAUTHORIZED,
+      "Invalid password reset token.",
+    );
+  }
+
+  const resetId = decoded.resetId;
+  const userId = decoded.userId;
+
+  if (!resetId || !userId) {
+    throw new ApiError(
+      StatusCodes.UNAUTHORIZED,
+      "Invalid password reset token.",
+    );
+  }
+
+  const resetRequest = await prisma.passwordReset.findFirst({
+    where: {
+      id: resetId,
+      userId,
+    },
+  });
+
+  if (!resetRequest) {
+    throw new ApiError(
+      StatusCodes.NOT_FOUND,
+      "Password reset request not found.",
+    );
+  }
+
+  if (!resetRequest.verifiedAt) {
+    throw new ApiError(
+      StatusCodes.BAD_REQUEST,
+      "Please verify the reset code first.",
+    );
+  }
+
+  if (resetRequest.usedAt) {
+    throw new ApiError(
+      StatusCodes.BAD_REQUEST,
+      "This password reset request has already been used.",
+    );
+  }
+
+  if (resetRequest.expiresAt < new Date()) {
+    throw new ApiError(
+      StatusCodes.BAD_REQUEST,
+      "Password reset request has expired.",
+    );
+  }
+
+  const hashedPassword = await bcrypt.hash(
+    payload.newPassword,
+    Number(config.bcrypt_salt_round),
+  );
+
+  await prisma.user.update({
+    where: {
+      id: userId,
+    },
+    data: {
+      password: hashedPassword,
+    },
+  });
+
+  await prisma.passwordReset.update({
+    where: {
+      id: resetRequest.id,
+    },
+    data: {
+      usedAt: new Date(),
+    },
+  });
 };
 
 export const AuthService = {
@@ -264,4 +470,6 @@ export const AuthService = {
   signIn,
   signOut,
   forgotPassword,
+  verifyPasswordResetCode,
+  resetPassword,
 };

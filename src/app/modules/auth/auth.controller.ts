@@ -71,12 +71,38 @@ const signOut = catchAsync(async (req: Request, res: Response) => {
 });
 
 const forgotPassword = catchAsync(async (req: Request, res: Response) => {
-  await AuthService.forgotPassword(req.body);
+  const result = await AuthService.forgotPassword(req.body);
 
   sendResponse(res, {
     statusCode: StatusCodes.OK,
     success: true,
-    message: "Password reset link sent to your email!",
+    message: result.message,
+    data: null,
+  });
+});
+
+const verifyPasswordReset = catchAsync(async (req: Request, res: Response) => {
+  const payload = req.body;
+
+  const result = await AuthService.verifyPasswordResetCode(payload);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Verification code verified successfully.",
+    data: result,
+  });
+});
+
+const resetPassword = catchAsync(async (req: Request, res: Response) => {
+  const payload = req.body;
+  const result = await AuthService.resetPassword(payload);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Password reset successfully.",
+    data: result,
   });
 });
 
@@ -86,4 +112,6 @@ export const AuthController = {
   signIn,
   signOut,
   forgotPassword,
+  verifyPasswordReset,
+  resetPassword,
 };
