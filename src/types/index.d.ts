@@ -1,10 +1,12 @@
-import "express";
+import "express-serve-static-core";
 
-declare global {
-  namespace Express {
-    interface Request {
-      user: JwtPayload | null;
-    }
+declare module "express-serve-static-core" {
+  interface Request {
+    user?: {
+      id: string;
+      userEmail: string;
+    };
   }
 }
+
 export {};

@@ -15,7 +15,7 @@ const auth = async (req: Request, res: Response, next: NextFunction) => {
     // verify token
     let verifiedUser = null;
     verifiedUser = JwtHelpers.verifiedToken(token, config.jwt.secret as Secret);
-    req.user = verifiedUser;
+    req.user = verifiedUser as { id: string; userEmail: string };
 
     next();
   } catch (error) {
