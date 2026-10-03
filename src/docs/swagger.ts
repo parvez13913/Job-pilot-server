@@ -1,11 +1,9 @@
+import swaggerJSDoc from "swagger-jsdoc";
+import swaggerUi from "swagger-ui-express";
 import { Express } from "express";
 import path from "path";
-import swaggerUi from "swagger-ui-express";
 
-// Load dynamically to avoid requiring swagger-jsdoc type declarations.
-const swaggerJSDoc: (options: any) => any = eval("require")("swagger-jsdoc");
-
-const swaggerOptions = {
+const swaggerOptions: swaggerJSDoc.Options = {
   definition: {
     openapi: "3.0.3",
 
@@ -23,9 +21,11 @@ const swaggerOptions = {
       {
         url:
           process.env.API_BASE_URL ||
-          "https://job-pilot-server-lovat.vercel.app/api/v1",
+          "https://job-pilot-server-lovat.vercel.app/api-docs/api/v1",
         description:
-          process.env.NODE_ENV === "production" ? "Production" : "Development",
+          process.env.NODE_ENV === "production"
+            ? "Production"
+            : "Development",
       },
     ],
 
@@ -78,7 +78,8 @@ const swaggerOptions = {
           type: "http",
           scheme: "bearer",
           bearerFormat: "JWT",
-          description: "Enter your JWT access token.",
+          description:
+            "Enter your JWT access token.",
         },
 
         refreshToken: {
@@ -109,16 +110,25 @@ const swaggerOptions = {
   },
 
   apis: [
-    path.join(process.cwd(), "src/app/modules/**/*.route.ts"),
-    path.join(process.cwd(), "src/app/routes/**/*.ts"),
+    path.join(
+      process.cwd(),
+      "src/app/modules/**/*.route.ts",
+    ),
+    path.join(
+      process.cwd(),
+      "src/app/routes/**/*.ts",
+    ),
   ],
 
   failOnErrors: true,
 };
 
-const swaggerSpec = swaggerJSDoc(swaggerOptions);
+const swaggerSpec =
+  swaggerJSDoc(swaggerOptions);
 
-export const setupSwagger = (app: Express): void => {
+export const setupSwagger = (
+  app: Express,
+): void => {
   app.use(
     "/api-docs",
     swaggerUi.serve,
