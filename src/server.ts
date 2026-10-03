@@ -1,14 +1,12 @@
 import { Server } from "http";
+
 import app from "./app";
-import config from "./config";
 
 const main = () => {
-  // const server: Server = app.listen(config.port, () => {
-  //   console.log(`Server running on port ${config.port}`);
-  // });
+  const port = Number(process.env.PORT) || 5000;
 
-  const server: Server = app.listen(config.port, "0.0.0.0", () => {
-    console.log(`JobPilot server running on port ${config.port}`);
+  const server: Server = app.listen(port, "0.0.0.0", () => {
+    console.log(`JobPilot server running on port ${port}`);
   });
 
   server.on("error", (error) => {

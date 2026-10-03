@@ -1,18 +1,40 @@
 import cors from "cors";
 import express, { Application, NextFunction, Request, Response } from "express";
+
 import { StatusCodes } from "http-status-codes";
+
 import router from "./app/routes";
 
 const app: Application = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+  }),
+);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use("/api/v1/", router);
+app.get("/", (_req: Request, res: Response) => {
+  res.status(StatusCodes.OK).json({
+    success: true,
+    message: "JobPilot Backend Server is running!",
+  });
+});
 
-//handle not found
-app.use((req: Request, res: Response, next: NextFunction) => {
+app.get("/api/v1/health", (_req: Request, res: Response) => {
+  res.status(StatusCodes.OK).json({
+    success: true,
+    message: "JobPilot API is running",
+  });
+});
+
+app.use("/api/v1", router);
+
+// 404 handler MUST be last
+app.use((req: Request, res: Response, _next: NextFunction) => {
   res.status(StatusCodes.NOT_FOUND).json({
     success: false,
     message: "Not Found",
@@ -22,21 +44,6 @@ app.use((req: Request, res: Response, next: NextFunction) => {
         message: "API Not Found",
       },
     ],
-  });
-  next();
-});
-
-app.get("/", (_req: Request, res: Response) => {
-  res.status(StatusCodes.OK).json({
-    success: true,
-    message: "JobPilot Backend Server is running!",
-  });
-});
-
-app.get("/api/v1/health", (_req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "JobPilot API is running",
   });
 });
 
