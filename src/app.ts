@@ -26,10 +26,17 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
-app.get("/", (req: Request, res: Response) => {
+app.get("/", (_req: Request, res: Response) => {
   res.status(StatusCodes.OK).json({
     success: true,
     message: "JobPilot Backend Server is running!",
+  });
+});
+
+app.get("/api/v1/health", (_req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "JobPilot API is running",
   });
 });
 
