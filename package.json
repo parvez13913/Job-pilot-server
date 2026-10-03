@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "@google/genai": "^2.24.0",
+    "@napi-rs/canvas": "^1.0.10",
     "@prisma/adapter-pg": "^7.10.0",
     "@prisma/client": "7",
     "@types/express": "^5.0.6",
