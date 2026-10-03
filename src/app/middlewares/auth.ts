@@ -1,10 +1,22 @@
 import { NextFunction, Request, Response } from "express";
+
 import { StatusCodes } from "http-status-codes";
 import { Secret } from "jsonwebtoken";
 
 import config from "../../config";
 import ApiError from "../../errors/ApiError";
 import { JwtHelpers } from "../../helpers/jwt-helpers";
+
+declare global {
+  namespace Express {
+    interface Request {
+      user?: {
+        id: string;
+        userEmail: string;
+      };
+    }
+  }
+}
 
 const auth = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -33,6 +45,7 @@ const auth = async (req: Request, res: Response, next: NextFunction) => {
     req.user = verifiedUser as {
       id: string;
       userEmail: string;
+      role?: string;
     };
 
     next();
