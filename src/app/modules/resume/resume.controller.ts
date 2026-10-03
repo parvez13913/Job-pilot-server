@@ -5,7 +5,7 @@ import sendResponse from "../../../lib/sendResponse";
 import { ResumeService } from "./resume.service";
 
 const createResume = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.user?.id;
+  const userId = req.user?.id as string;
   const data = req.body;
   const file = req.file;
 
@@ -20,7 +20,7 @@ const createResume = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getUserResumes = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.user?.id;
+  const userId = req.user?.id as string;
 
   const resumes = await ResumeService.getUserResumes(userId);
 
@@ -33,7 +33,7 @@ const getUserResumes = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getResumeById = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.user?.id;
+  const userId = req.user?.id as string;
   const { id } = req.params as { id: string };
 
   const result = await ResumeService.getResumeById(userId, id);
@@ -47,7 +47,7 @@ const getResumeById = catchAsync(async (req: Request, res: Response) => {
 });
 
 const updateResume = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.user?.id;
+  const userId = req.user?.id as string;
   const { id } = req.params as { id: string };
   const payload = req.body;
 
@@ -62,7 +62,7 @@ const updateResume = catchAsync(async (req: Request, res: Response) => {
 });
 
 const deleteResume = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.user?.id;
+  const userId = req.user?.id as string;
   const { id } = req.params as { id: string };
 
   await ResumeService.deleteResume(userId, id);

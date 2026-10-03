@@ -6,7 +6,7 @@ import sendResponse from "../../../lib/sendResponse";
 import { ApplicationService } from "./application.service";
 
 const createApplication = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.user?.id;
+  const userId = req.user?.id as string;
   const payload = req.body;
   const result = await ApplicationService.createApplication(userId, payload);
 
@@ -19,7 +19,7 @@ const createApplication = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getApplications = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.user?.id;
+  const userId = req.user?.id as string;
   const status = req.query.status as ApplicationStatus | undefined;
   const result = await ApplicationService.getApplications(userId, status);
 
@@ -32,7 +32,7 @@ const getApplications = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getApplicationById = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.user?.id;
+  const userId = req.user?.id as string;
   const id = req.params.id as string;
   const result = await ApplicationService.getApplicationById(userId, id);
 
@@ -45,7 +45,7 @@ const getApplicationById = catchAsync(async (req: Request, res: Response) => {
 });
 
 const updateApplication = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.user?.id;
+  const userId = req.user?.id as string;
   const id = req.params.id as string;
   const payload = req.body;
   const result = await ApplicationService.updateApplication(
@@ -63,7 +63,7 @@ const updateApplication = catchAsync(async (req: Request, res: Response) => {
 });
 
 const deleteApplication = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.user?.id;
+  const userId = req.user?.id as string;
   const id = req.params.id as string;
   await ApplicationService.deleteApplication(userId, id);
 

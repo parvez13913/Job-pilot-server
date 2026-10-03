@@ -5,7 +5,7 @@ import sendResponse from "../../../lib/sendResponse";
 import { InterviewService } from "./interview.service";
 
 const createInterview = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.user?.id;
+  const userId = req.user?.id as string;
   const payload = req.body;
   const result = await InterviewService.createInterview(userId, payload);
 
@@ -18,7 +18,7 @@ const createInterview = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getInterviews = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.user?.id;
+  const userId = req.user?.id as string;
   const result = await InterviewService.getInterviews(userId);
 
   sendResponse(res, {
@@ -30,7 +30,7 @@ const getInterviews = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getInterviewById = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.user?.id;
+  const userId = req.user?.id as string;
   const id = req.params.id as string;
   const result = await InterviewService.getInterviewById(userId, id);
 
@@ -43,7 +43,7 @@ const getInterviewById = catchAsync(async (req: Request, res: Response) => {
 });
 
 const updateInterview = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.user?.id;
+  const userId = req.user?.id as string;
   const id = req.params.id as string;
   const payload = req.body;
   const result = await InterviewService.updateInterview(userId, id, payload);
@@ -57,7 +57,7 @@ const updateInterview = catchAsync(async (req: Request, res: Response) => {
 });
 
 const deleteInterview = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.user?.id;
+  const userId = req.user?.id as string;
   const id = req.params.id as string;
   await InterviewService.deleteInterview(userId, id);
 

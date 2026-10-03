@@ -6,7 +6,7 @@ import { AiService } from "./ai.service";
 
 const parseResume = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params as { id: string };
-  const userId = req.user?.id;
+  const userId = req.user?.id as string;
 
   const result = await AiService.parseResume(userId, id);
 
@@ -20,7 +20,7 @@ const parseResume = catchAsync(async (req: Request, res: Response) => {
 
 const parseJob = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params as { id: string };
-  const userId = req.user?.id;
+  const userId = req.user?.id as string;
 
   const result = await AiService.parseJob(userId, id);
 

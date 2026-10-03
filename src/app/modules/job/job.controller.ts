@@ -5,7 +5,7 @@ import sendResponse from "../../../lib/sendResponse";
 import { JobService } from "./job.service";
 
 const createJob = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.user?.id;
+  const userId = req.user?.id as string;
   const payload = req.body;
   const result = await JobService.createJob(userId, payload);
 
@@ -18,7 +18,7 @@ const createJob = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getAllJobs = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.user?.id;
+  const userId = req.user?.id as string;
   const result = await JobService.getAllJobs(userId);
 
   sendResponse(res, {
@@ -30,7 +30,7 @@ const getAllJobs = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getJobById = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.user?.id;
+  const userId = req.user?.id as string;
   const jobId = req.params.id as string;
   const result = await JobService.getJobById(userId, jobId);
 
@@ -43,7 +43,7 @@ const getJobById = catchAsync(async (req: Request, res: Response) => {
 });
 
 const updateJob = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.user?.id;
+  const userId = req.user?.id as string;
   const jobId = req.params.id as string;
   const payload = req.body;
   const result = await JobService.updateJob(userId, jobId, payload);
@@ -57,7 +57,7 @@ const updateJob = catchAsync(async (req: Request, res: Response) => {
 });
 
 const deleteJob = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.user?.id;
+  const userId = req.user?.id as string;
   const jobId = req.params.id as string;
   await JobService.deleteJob(userId, jobId);
 
