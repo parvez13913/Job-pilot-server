@@ -1,9 +1,10 @@
 import cors from "cors";
-import express, { Application, NextFunction, Request, Response } from "express";
+import express, { Express, NextFunction, Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import router from "./app/routes/index.js";
+import { setupSwagger } from "./docs/swagger.js";
 
-const app: Application = express();
+const app: Express = express();
 
 app.use(
   cors({
@@ -28,6 +29,8 @@ app.get("/api/v1/health", (_req: Request, res: Response) => {
     message: "JobPilot API is running",
   });
 });
+
+setupSwagger(app);
 
 app.use("/api/v1", router);
 
