@@ -1,6 +1,8 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider            = "prisma-client"
+  output              = "../src/generated/prisma"
+  moduleFormat        = "cjs"
+  importFileExtension = ""
 }
 
 datasource db {
@@ -20,16 +22,16 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  sessions     Session[]
-  resumes      Resume[]
-  jobs         Job[]
-  applications Application[]
-  coverLetters CoverLetter[]
-  interviews   InterviewSession[]
-  analyses     JobAnalysis[]
+  sessions       Session[]
+  resumes        Resume[]
+  jobs           Job[]
+  applications   Application[]
+  coverLetters   CoverLetter[]
+  interviews     InterviewSession[]
+  analyses       JobAnalysis[]
+  passwordResets PasswordReset[]
 
   @@index([emailVerificationToken])
-  passwordResets PasswordReset[]
 }
 
 model PendingSignup {

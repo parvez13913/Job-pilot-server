@@ -4,7 +4,7 @@
   "description": "AI Job Application Assistant created by Parvez Rahman",
   "license": "ISC",
   "author": "Parvez Rahman",
-  "type": "module",
+  "type": "commonjs",
   "engines": {
     "node": "24.x"
   },
