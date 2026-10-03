@@ -1,20 +1,17 @@
-import http from "node:http";
+import { Server } from "http";
 
-const server = http.createServer((_req, res) => {
-  res.writeHead(200, {
-    "Content-Type": "application/json",
+import app from "./app";
+
+const main = () => {
+  const port = Number(process.env.PORT) || 5000;
+
+  const server: Server = app.listen(port, "0.0.0.0", () => {
+    console.log(`JobPilot server running on port ${port}`);
   });
 
-  res.end(
-    JSON.stringify({
-      success: true,
-      message: "JobPilot Vercel server is running",
-    }),
-  );
-});
+  server.on("error", (error) => {
+    console.error("Server error:", error);
+  });
+};
 
-const PORT = Number(process.env.PORT) || 3000;
-
-server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+main();
