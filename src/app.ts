@@ -1,9 +1,10 @@
 import cors from "cors";
 import express, { Application, NextFunction, Request, Response } from "express";
-
 import { StatusCodes } from "http-status-codes";
+import router from "./app/routes/index";
 
-import router from "./app/routes";
+
+
 
 const app: Application = express();
 
