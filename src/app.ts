@@ -1,10 +1,12 @@
 import cors from "cors";
-import express, { Express, NextFunction, Request, Response } from "express";
-import { StatusCodes } from "http-status-codes";
-import router from "./app/routes/index.js";
-import { setupSwagger } from "./docs/swagger.js";
+import express, { NextFunction, Request, Response } from "express";
 
-const app: Express = express();
+import { StatusCodes } from "http-status-codes";
+
+import router from "./app/routes";
+import { setupSwagger } from "./docs/swagger";
+
+const app = express();
 
 app.use(
   cors({
@@ -23,18 +25,20 @@ app.get("/", (_req: Request, res: Response) => {
   });
 });
 
-app.get("/api/v1/health", (_req: Request, res: Response) => {
+app.get("/api/v1/health", (_req, res) => {
   res.status(StatusCodes.OK).json({
     success: true,
     message: "JobPilot API is running",
   });
 });
 
+// Swagger
 setupSwagger(app);
 
+// API routes
 app.use("/api/v1", router);
 
-// 404 handler MUST be last
+// 404 must be last
 app.use((req: Request, res: Response, _next: NextFunction) => {
   res.status(StatusCodes.NOT_FOUND).json({
     success: false,
