@@ -1,0 +1,333 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "JobPilot API",
+    "version": "1.0.0",
+    "description": "JobPilot - AI Job Application Assistant API",
+    "contact": {
+      "name": "Parvez Rahman"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://job-pilot-server-lovat.vercel.app/api/v1",
+      "description": "Production"
+    },
+    {
+      "url": "http://localhost:5000/api/v1",
+      "description": "Development"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Auth",
+      "description": "Authentication APIs"
+    },
+    {
+      "name": "Resume",
+      "description": "Resume APIs"
+    },
+    {
+      "name": "Job",
+      "description": "Job APIs"
+    },
+    {
+      "name": "AI",
+      "description": "AI parsing APIs"
+    },
+    {
+      "name": "Analysis",
+      "description": "Resume vs Job analysis APIs"
+    },
+    {
+      "name": "Tailored Resume",
+      "description": "Tailored resume APIs"
+    },
+    {
+      "name": "Cover Letter",
+      "description": "Cover letter APIs"
+    },
+    {
+      "name": "Interview",
+      "description": "Interview APIs"
+    },
+    {
+      "name": "Application",
+      "description": "Application tracking APIs"
+    },
+    {
+      "name": "Dashboard",
+      "description": "Dashboard APIs"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": ["Auth"],
+        "summary": "Health check",
+        "responses": {
+          "200": {
+            "description": "API is running"
+          }
+        }
+      }
+    },
+
+    "/auth/signup": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Create account",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "password"],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "Parvez Rahman"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "parvez@example.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "Password123"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Verification code sent"
+          }
+        }
+      }
+    },
+
+    "/auth/verify-signup": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Verify signup OTP",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "code"],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "code": {
+                    "type": "string",
+                    "example": "234556"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Account verified successfully"
+          }
+        }
+      }
+    },
+
+    "/auth/signin": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Sign in",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "password"],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful"
+          }
+        }
+      }
+    },
+
+    "/resumes": {
+      "get": {
+        "tags": ["Resume"],
+        "summary": "Get resumes",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resumes retrieved successfully"
+          }
+        }
+      }
+    },
+
+    "/jobs": {
+      "get": {
+        "tags": ["Job"],
+        "summary": "Get jobs",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Jobs retrieved successfully"
+          }
+        }
+      }
+    },
+
+    "/applications": {
+      "get": {
+        "tags": ["Application"],
+        "summary": "Get applications",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Applications retrieved successfully"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Application"],
+        "summary": "Create application",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Application created successfully"
+          }
+        }
+      }
+    },
+
+    "/cover-letters": {
+      "get": {
+        "tags": ["Cover Letter"],
+        "summary": "Get cover letters",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cover letters retrieved successfully"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Cover Letter"],
+        "summary": "Generate cover letter",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Cover letter created successfully"
+          }
+        }
+      }
+    },
+
+    "/interviews": {
+      "get": {
+        "tags": ["Interview"],
+        "summary": "Get interview sessions",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Interview sessions retrieved successfully"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Interview"],
+        "summary": "Create interview session",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Interview session created successfully"
+          }
+        }
+      }
+    },
+
+    "/dashboard": {
+      "get": {
+        "tags": ["Dashboard"],
+        "summary": "Get dashboard statistics",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dashboard data retrieved successfully"
+          }
+        }
+      }
+    }
+  }
+}
