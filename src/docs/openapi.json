@@ -82,7 +82,7 @@
       }
     },
 
-    "/auth/signup": {
+    "/auth/sign-up": {
       "post": {
         "tags": ["Auth"],
         "summary": "Create account",
@@ -153,7 +153,7 @@
       }
     },
 
-    "/auth/signin": {
+    "/auth/sign-in": {
       "post": {
         "tags": ["Auth"],
         "summary": "Sign in",
@@ -186,7 +186,7 @@
       }
     },
 
-    "/resumes": {
+    "/resume": {
       "get": {
         "tags": ["Resume"],
         "summary": "Get resumes",
@@ -203,7 +203,7 @@
       }
     },
 
-    "/jobs": {
+    "/job": {
       "get": {
         "tags": ["Job"],
         "summary": "Get jobs",
@@ -220,7 +220,7 @@
       }
     },
 
-    "/applications": {
+    "/application": {
       "get": {
         "tags": ["Application"],
         "summary": "Get applications",
@@ -251,7 +251,7 @@
       }
     },
 
-    "/cover-letters": {
+    "/cover-letter": {
       "get": {
         "tags": ["Cover Letter"],
         "summary": "Get cover letters",
@@ -282,7 +282,7 @@
       }
     },
 
-    "/interviews": {
+    "/interview": {
       "get": {
         "tags": ["Interview"],
         "summary": "Get interview sessions",
